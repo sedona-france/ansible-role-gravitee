@@ -1,0 +1,80 @@
+---
+- name: "Create Gravitee user"
+  ansible.builtin.user:
+    name: gravitee
+    system: true
+    home: "{{ gravitee_install_dir }}"
+    create_home: true
+    state: present
+    shell: /bin/nologin
+  become: true
+
+# - name: "Retrieve gravitee version"
+#   ansible.builtin.unarchive:
+#     src: "https://download.gravitee.io/graviteeio-apim/distributions/graviteeio-full-{{ gravitee_version }}.zip"
+#     dest: "{{ gravitee_install_dir }}"
+#     extra_opts: [--strip-components=1]
+
+- name: "Download and install Gravitee {{ gravitee_version }}"
+  #when: not release_folder.stat.exists
+  block:
+    - name: "Define Gravitee release URL"
+      ansible.builtin.set_fact:
+        gravitee_release_download_url: "https://download.gravitee.io/graviteeio-apim/distributions/graviteeio-full-{{ gravitee_version }}.zip"
+
+    - name: "Obtain release archive checksum"
+      ansible.builtin.uri:
+        url: "{{ gravitee_release_download_url }}.sha1"
+        return_content: yes
+      register: gravitee_release_checksum_file
+    - name: debug
+      debug: "{{ gravitee_release_checksum_file.content }}"
+
+    - name: "Download Gravitee archive"
+      ansible.builtin.get_url:
+        url: "{{ gravitee_release_download_url }}"
+        dest: "/tmp/gravitee-{{ gravitee_version }}.zip"
+        #checksum: "sha1:{{ gravitee_release_checksum_file.content }}"
+        mode: '0444'
+
+    - name: "Ensure install dir exists"
+      ansible.builtin.file:
+        path: "{{ gravitee_install_dir }}"
+        state: directory
+        mode: '0775'
+        owner: "{{ gravitee_service_user }}"
+        group: "{{ gravitee_service_user }}"
+      become: true
+
+    - name: "Extract archive"
+      ansible.builtin.unarchive:
+        src: "/tmp/gravitee-{{ gravitee_version }}.zip"
+        dest: "/tmp"
+        remote_src: true
+      become_user: "{{ gravitee_service_user }}"
+    
+    - name: move files to install directory
+      ansible.builtin.copy:
+        src: "/tmp/graviteeio-full-{{ gravitee_version }}/"
+        dest: "{{ gravitee_install_dir }}"
+        remote_src: true
+      become_user: "{{ gravitee_service_user }}"
+    - name: Create a symbolic link
+      ansible.builtin.file:
+        src: "{{ gravitee_install_dir }}/graviteeio-apim-{{ item }}-{{ gravitee_version }}"
+        dest: "{{ gravitee_install_dir }}/{{item }}"
+        owner: "{{ gravitee_service_user }}"
+        group: "{{ gravitee_service_user }}"
+        state: link
+      loop:
+        - console-ui
+        - gateway
+        - portal-ui
+        - rest-api
+
+  rescue:
+    - name: Cleanup folder to allow new installation
+      ansible.builtin.file:
+        path: release_folder.stat.path
+        state: absent
+      become: true

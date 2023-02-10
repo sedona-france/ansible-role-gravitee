@@ -1,0 +1,24 @@
+---
+- name: "Configure Gravitee config files"
+  template:
+    src: templates/gravitee_{{ item }}.yml.j2
+    dest: "{{ gravitee_install_dir }}/{{ item }}/config/gravitee.yml"
+  loop:
+    - gateway
+    - rest-api
+
+- name: "Configure Gravitee service files"
+  template: 
+    src: templates/gravitee_service.j2   
+    dest: /etc/systemd/system/graviteeio-apim-{{ item }}.service
+  loop:
+    - gateway
+    - rest-api
+
+- name: "Start Gravitee services"
+  systemd: 
+    name: graviteeio-apim-{{ item }}.service
+    state: restarted
+  loop:
+    - gateway
+    - rest-api

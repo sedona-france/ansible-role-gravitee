@@ -1,0 +1,19 @@
+[Unit]
+Description=Gravitee.io API Management - API {{ item }}
+Documentation=http://docs.gravitee.io
+After=network.target
+
+[Service]
+Type=simple
+User={{ gravitee_service_user}}
+LimitNOFILE=65536
+ExecStart={{ gravitee_install_dir }}/{{ item }}/bin/gravitee
+ExecReload=/bin/kill -s HUP $MAINPID
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+TimeoutStartSec=0
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

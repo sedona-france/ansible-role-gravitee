@@ -1,0 +1,14 @@
+---
+# defaults file for ansible-role-gravitee
+gravitee_service_user: gravitee
+gravitee_install_dir: /opt/gravitee/apim
+gravitee_version: 3.19.0
+
+install_elasticsearch: true
+elasticsearch_version: 7.x
+
+install_mongodb: true
+mongodb_version: "4.4"
+mongodb_database: gravitee
+mongodb_user: gravitee
+mongodb_password: gravitee

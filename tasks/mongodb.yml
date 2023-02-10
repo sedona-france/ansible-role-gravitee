@@ -1,0 +1,17 @@
+---
+- name: include role mongodb
+  ansible.builtin.include_role:
+    name: "{{ item }}"
+  loop:
+    - { role: community.mongodb.mongodb_linux, become: yes }
+    - { role: community.mongodb.mongodb_install, become: yes }
+    - { role: community.mongodb.mongodb_mongod, become: yes }
+    - { role: community.mongodb.mongodb_auth, become: yes }
+    
+- name: Create mongodb database and user
+  community.mongodb.mongodb_user:
+    database: "{{ mongodb_gravitee_database }}"
+    name: "{{ mongodb_gravitee_user }}"
+    password: "{{ mongodb_gravitee_password }}"
+    roles: "{{ mongodb_gravitee_user_role }}"
+    state: present

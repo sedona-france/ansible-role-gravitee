@@ -1,0 +1,41 @@
+---
+# Check pre-requirements
+- name: Test if ansible_user has root capabilities (sudo or equivalent)
+  become: true
+  ansible.builtin.command: id -u
+  register: id_output
+
+- name: Validate ansible_user root capabilities
+  ansible.builtin.assert:
+    that: id_output.stdout == '0'
+
+- name: "Check version of systemd"
+  become: true
+  ansible.builtin.shell: |
+    set -o pipefail
+    systemctl --version | head -n1 | cut -d ' ' -f 2
+  args:
+    executable: /usr/bin/bash
+  register: systemd_version_cmd
+  changed_when: true
+
+- name: "Set systemd version"
+  ansible.builtin.set_fact:
+    ansible_systemd_version: "{{ systemd_version_cmd.stdout | int }}"
+
+- name: "Ensure required utilities are installed"
+  ansible.builtin.package:
+    name:
+      - acl
+      - gzip
+      - tar
+      - openjdk-11-jdk-headless
+      - nginx
+    state: present
+  become: true
+
+- name: "Check presence of gravitee {{ gravitee_version }}"
+  ansible.builtin.stat:
+    path: "{{ gravitee_install_dir }}/gravitee-apim-gateway-{{ gravitee_version }}"
+  register: release_folder
+  become: true

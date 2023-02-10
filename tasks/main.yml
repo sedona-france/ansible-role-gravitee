@@ -1,0 +1,27 @@
+---
+# - name: "Run pre-checks"
+#   ansible.builtin.include_tasks: precheck.yml
+#   tags:
+#     - precheck
+
+# - name: "Install MongoDB"
+#   when: install_mongodb is true
+#   ansible.builtin.include_tasks: mongodb.yml
+#   tags:
+#     - install
+#     - mongodb
+# - name: "Install ElasticSearch"
+#   when: install_elasticsearch is true
+#   ansible.builtin.include_tasks: elasticsearch.yml
+#   tags:
+#     - install
+#     - mongodb
+- name: "Installs Gravitee"
+  ansible.builtin.include_tasks: install.yml
+  tags:
+    - install
+
+- name: "Configure Gravitee"
+  ansible.builtin.include_tasks: configure.yml
+  tags:
+    - setup
