@@ -1,4 +1,11 @@
 ---
+- name: Create mongodb database and user
+  community.mongodb.mongodb_user:
+    database: "{{ mongodb_gravitee_database }}"
+    name: "{{ mongodb_gravitee_user }}"
+    password: "{{ mongodb_gravitee_password }}"
+    roles: "{{ mongodb_gravitee_user_role }}"
+    state: present
 - name: "Configure Gravitee config files"
   template:
     src: templates/gravitee_{{ item }}.yml.j2
@@ -14,6 +21,10 @@
   loop:
     - gateway
     - rest-api
+- name: "Configure Gravitee console UI constants file"
+  template: 
+    src: gravitee_console_ui_constants.json.j2   
+    dest: "{{ gravitee_install_dir }}/console-ui/constants.json"
 
 - name: "Start Gravitee services"
   systemd: 

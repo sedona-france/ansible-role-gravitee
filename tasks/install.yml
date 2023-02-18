@@ -51,14 +51,16 @@
         src: "/tmp/gravitee-{{ gravitee_version }}.zip"
         dest: "/tmp"
         remote_src: true
-      become_user: "{{ gravitee_service_user }}"
+      #become_user: "{{ gravitee_service_user }}"
     
     - name: move files to install directory
       ansible.builtin.copy:
         src: "/tmp/graviteeio-full-{{ gravitee_version }}/"
         dest: "{{ gravitee_install_dir }}"
+        owner: "{{ gravitee_service_user }}"
+        group: "{{ gravitee_service_user }}"
         remote_src: true
-      become_user: "{{ gravitee_service_user }}"
+      #become_user: "{{ gravitee_service_user }}"
     - name: Create a symbolic link
       ansible.builtin.file:
         src: "{{ gravitee_install_dir }}/graviteeio-apim-{{ item }}-{{ gravitee_version }}"
