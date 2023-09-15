@@ -2,6 +2,7 @@
 Description=Gravitee.io API Management - API {{ item }}
 Documentation=http://docs.gravitee.io
 After=network.target
+Requires=mongod.service elasticsearch.service nginx.service
 
 [Service]
 Type=simple

@@ -1,19 +1,24 @@
 ---
-- name: Add Elasticsearch apt key.
-  ansible.builtin.apt_key:
-    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-    state: present
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: auto
+- name: Install elasticsearh if not present
+  block:
+  - name: Add Elasticsearch apt key.
+    ansible.builtin.apt_key:
+      url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+      state: present
+  - name: Add Elasticsearch repository.
+    ansible.builtin.apt_repository:
+      repo: 'deb https://artifacts.elastic.co/packages/{{ elasticsearch_version }}/apt stable main'
+      state: present
+      update_cache: true
+  - name: Install Elasticsearch
+    ansible.builtin.package:
+      name: elasticsearch={{ elasticsearch_version_complete }}
+      state: present
+  when: "'elasticsearch' not in ansible_facts.packages"
 
-- name: Add Elasticsearch repository.
-  ansible.builtin.apt_repository:
-    repo: 'deb https://artifacts.elastic.co/packages/{{ elasticsearch_version }}/apt stable main'
-    state: present
-    update_cache: true
-
-- name: Install Elasticsearch
-  ansible.builtin.package:
-    name: elasticsearch=7.17.9
-    state: present
 - name: Setting sysctl
   ansible.builtin.sysctl:
     name: vm.max_map_count

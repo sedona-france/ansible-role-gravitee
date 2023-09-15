@@ -394,6 +394,9 @@ ds:
     dbname: {{ mongodb_database }}
     host: localhost
     port: 27017
+    username: {{ mongodb_gravitee_user }}
+    password: {{ mongodb_gravitee_password }}
+    auth-source: admin
   elastic:
     host: localhost
     port: 9200
