@@ -170,22 +170,22 @@ reporters:
     enabled: true # Is the reporter enabled or not (default to true)
     endpoints:
       - http://${ds.elastic.host}:${ds.elastic.port}
-#    lifecycle:
+    lifecycle:
 #      policy_property_name: index.lifecycle.name   #for openDistro, use 'opendistro.index_state_management.policy_id' instead of 'index.lifecycle.name'
-#      policies:
-#        monitor: my_policy ## ILM policy for the gravitee-monitor-* indexes
-#        request: my_policy ## ILM policy for the gravitee-request-* indexes
-#        health: my_policy ## ILM policy for the gravitee-health-* indexes
-#        log: my_policy ## ILM policy for the gravitee-log-* indexes
+      policies:
+        monitor: gravitee-indices
+        request: gravitee-indices
+        health: gravitee-indices
+        log: gravitee-indices
+    index_mode: daily         # "daily" indexes, suffixed with date. Or "ilm" managed indexes, without date
+    settings:
+      number_of_shards: 1
+      number_of_replicas: 0
 #    index: gravitee
 #    index_per_type: true
-#    index_mode: daily         # "daily" indexes, suffixed with date. Or "ilm" managed indexes, without date
 #    bulk:
 #      actions: 1000           # Number of requests action before flush
 #      flush_interval: 5       # Flush interval in seconds
-#    settings:
-#      number_of_shards: 1
-#      number_of_replicas: 1
 #      refresh_interval: 5s
 #    pipeline:
 #      plugins:
