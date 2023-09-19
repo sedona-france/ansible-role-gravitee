@@ -82,6 +82,9 @@ management:
     dbname: ${ds.mongodb.dbname} # mongodb name (default gravitee)
     host: ${ds.mongodb.host}     # mongodb host (default localhost)
     port: ${ds.mongodb.port}     # mongodb port (default 27017)
+    username: ${ds.mongodb.username}
+    password: ${ds.mongodb.password}
+    authSource: ${ds.mongodb.auth-source}
 
 ## Client settings
 #    description:                 # mongodb description (default gravitee.io)
@@ -133,7 +136,7 @@ management:
 #management:
 #  type: mongodb
 #  mongodb:
-#    uri: mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
+#    uri: mongodb://${ds.mongodb.username}:${ds.mongodb.password}@${ds.mongodb.host}:${ds.mongodb.port}/${ds.mongodb.dbname}
 
 # Management repository: clustered MongoDB
 #management:
@@ -153,7 +156,7 @@ management:
 ratelimit:
   type: mongodb
   mongodb:
-    uri: mongodb://${ds.mongodb.host}:${ds.mongodb.port}/${ds.mongodb.dbname}
+    uri: mongodb://${ds.mongodb.username}:${ds.mongodb.password}@${ds.mongodb.host}:${ds.mongodb.port}/${ds.mongodb.dbname}?authSource=${ds.mongodb.auth-source}
 
 cache:
   type: ehcache
@@ -170,22 +173,22 @@ reporters:
     enabled: true # Is the reporter enabled or not (default to true)
     endpoints:
       - http://${ds.elastic.host}:${ds.elastic.port}
-#    lifecycle:
+    lifecycle:
 #      policy_property_name: index.lifecycle.name   #for openDistro, use 'opendistro.index_state_management.policy_id' instead of 'index.lifecycle.name'
-#      policies:
-#        monitor: my_policy ## ILM policy for the gravitee-monitor-* indexes
-#        request: my_policy ## ILM policy for the gravitee-request-* indexes
-#        health: my_policy ## ILM policy for the gravitee-health-* indexes
-#        log: my_policy ## ILM policy for the gravitee-log-* indexes
+    policies:
+      monitor: gravitee-indices ## ILM policy for the gravitee-monitor-* indexes
+      request: gravitee-indices ## ILM policy for the gravitee-request-* indexes
+      health: gravitee-indices ## ILM policy for the gravitee-health-* indexes
+      log: gravitee-indices ## ILM policy for the gravitee-log-* indexes
 #    index: gravitee
 #    index_per_type: true
-#    index_mode: daily         # "daily" indexes, suffixed with date. Or "ilm" managed indexes, without date
+    index_mode: daily         # "daily" indexes, suffixed with date. Or "ilm" managed indexes, without date
 #    bulk:
 #      actions: 1000           # Number of requests action before flush
 #      flush_interval: 5       # Flush interval in seconds
-#    settings:
-#      number_of_shards: 1
-#      number_of_replicas: 1
+    settings:
+      number_of_shards: 1
+      number_of_replicas: 0
 #      refresh_interval: 5s
 #    pipeline:
 #      plugins:
@@ -230,7 +233,7 @@ reporters:
 services:
   core:
     http:
-      enabled: {{ gravitee_service_core_http_enabled }}
+      enabled: {{ gravitee_services_core_http_enabled }}
       port: 18082
       host: localhost
       authentication:
@@ -289,7 +292,7 @@ services:
 #      - http_code
 #      - http_path
     prometheus:
-      enabled: true
+      enabled: false
 
   # heartbeat
 #  heartbeat:
@@ -332,7 +335,7 @@ ds:
     port: 27017
     username: {{ mongodb_gravitee_user }}
     password: {{ mongodb_gravitee_password }}
-    auth-source: admin
+    auth-source: {{ mongodb_gravitee_user }}
   elastic:
     host: localhost
     port: 9200

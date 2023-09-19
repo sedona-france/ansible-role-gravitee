@@ -11,6 +11,7 @@
 - name: Create mongodb database and user
   community.mongodb.mongodb_user:
     database: "{{ mongodb_gravitee_database }}"
+    login_database: "{{ mongodb_gravitee_database }}"
     name: "{{ mongodb_gravitee_user }}"
     password: "{{ mongodb_gravitee_password }}"
     roles: "{{ mongodb_gravitee_user_role }}"

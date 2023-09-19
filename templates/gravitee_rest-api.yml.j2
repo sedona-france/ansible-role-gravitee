@@ -12,12 +12,12 @@
 ############################################################################################################
 
 # Console settings
-#console:
+console:
 ## Specify the URL of the Management API and UI of this instance, mandatory if you want to connect it to Cockpit
 #  ui:
-#    url: http://localhost:3000
+#    url: http://{{ network.address }}/console/
 #  api:
-#    url: http://localhost:8083/management
+#    url: http://{{ network.address }}/management
 
 ## Pendo Analysis Tool
 # To make our SaaS offering easier to use, we now have the ability to track activity in Pendo. This is disabled by
@@ -122,6 +122,9 @@ management:
     dbname: ${ds.mongodb.dbname} # mongodb name (default gravitee)
     host: ${ds.mongodb.host}     # mongodb host (default localhost)
     port: ${ds.mongodb.port}     # mongodb port (default 27017)
+    username: ${ds.mongodb.username}
+    password: ${ds.mongodb.password}
+    authSource: ${ds.mongodb.auth-source}
 
 ## Client settings
 #    description:                 # mongodb description (default gravitee.io)
@@ -192,7 +195,7 @@ management:
 services:
   core:
     http:
-      enabled: {{ gravitee_service_core_http_enabled }}
+      enabled: {{ gravitee_services_core_http_enabled }}
       port: 18083
       host: localhost
       authentication:
@@ -212,7 +215,7 @@ services:
 
   # v3 upgrader service. Can be disabled after first launch.
   v3-upgrader:
-    enabled: true
+    enabled: false
   # AutoFetch service. (since 3.2)
   # Use to fetch periodically documentation pages.
   auto_fetch:
@@ -277,41 +280,41 @@ security:
       # default value is bcrypt
       password-encoding-algo: bcrypt
       users:
+        #- user:
+          #  username: user
+          #  #firstname:
+          #  #lastname:
+          #  # Passwords are encoded using BCrypt
+          #  # Password value: password
+          #  password: $2a$10$9kjw/SH9gucCId3Lnt6EmuFreUAcXSZgpvAYuW2ISv7hSOhHRH1AO
+          #  roles: ORGANIZATION:USER,ENVIRONMENT:USER
+          #  # Useful to receive notifications
+          #  #email:
         - user:
-          username: user
-          #firstname:
-          #lastname:
-          # Passwords are encoded using BCrypt
-          # Password value: password
-          password: $2a$10$9kjw/SH9gucCId3Lnt6EmuFreUAcXSZgpvAYuW2ISv7hSOhHRH1AO
-          roles: ORGANIZATION:USER,ENVIRONMENT:USER
-          # Useful to receive notifications
-          #email:
-        - user:
-          username: admin
+          username: {{ gravitee_admin_user }}
           #firstname:
           #lastname:
           # Password value: admin
-          password: $2a$10$Ihk05VSds5rUSgMdsMVi9OKMIx2yUvMz7y9VP3rJmQeizZLrhLMyq
+          password: {{ gravitee_admin_password }}
           roles: ORGANIZATION:ADMIN,ENVIRONMENT:ADMIN
           #email:
-        - user:
-          username: api1
-          #firstname:
-          #lastname:
-          # Password value: api1
-          password: $2a$10$iXdXO4wAYdhx2LOwijsp7.PsoAZQ05zEdHxbriIYCbtyo.y32LTji
-          # You can declare multiple roles using comma separator
-          roles: ORGANIZATION:USER,ENVIRONMENT:API_PUBLISHER
-          #email:
-        - user:
-          username: application1
-          #firstname:
-          #lastname:
-          # Password value: application1
-          password: $2a$10$2gtKPYRB9zaVaPcn5RBx/.3T.7SeZoDGs9GKqbo9G64fKyXFR1He.
-          roles: ORGANIZATION:USER,ENVIRONMENT:USER
-          #email:
+        #- user:
+          #  username: api1
+          #  #firstname:
+          #  #lastname:
+          #  # Password value: api1
+          #  password: $2a$10$iXdXO4wAYdhx2LOwijsp7.PsoAZQ05zEdHxbriIYCbtyo.y32LTji
+          #  # You can declare multiple roles using comma separator
+          #  roles: ORGANIZATION:USER,ENVIRONMENT:API_PUBLISHER
+          #  #email:
+        #- user:
+          #  username: application1
+          #  #firstname:
+          #  #lastname:
+          #  # Password value: application1
+          #  password: $2a$10$2gtKPYRB9zaVaPcn5RBx/.3T.7SeZoDGs9GKqbo9G64fKyXFR1He.
+          #  roles: ORGANIZATION:USER,ENVIRONMENT:USER
+          #  #email:
     # Enable authentication using internal repository
     - type: gravitee
       # allow search results to display the user email. Be careful, It may be contrary to the user privacy.
@@ -363,10 +366,10 @@ security:
 
 # SMTP configuration used to send mails
 email:
-  enabled: false
-  host: smtp.my.domain
+  enabled: {{ gravitee_email_enabled }}
+  host: {{ gravitee_email_host }}
   subject: "[Gravitee.io] %s"
-  port: 587
+  port: {{ gravitee_email_port }}
   from: noreply@my.domain
 #  username: user@my.domain
 #  password: password
@@ -396,7 +399,7 @@ ds:
     port: 27017
     username: {{ mongodb_gravitee_user }}
     password: {{ mongodb_gravitee_password }}
-    auth-source: admin
+    auth-source: {{ mongodb_gravitee_user }}
   elastic:
     host: localhost
     port: 9200
@@ -424,7 +427,7 @@ swagger:
 user:
   login:
     # Create a default application when user connects to the portal for the very first time (default true)
-    #defaultApplication: true
+    defaultApplication: {{ gravitee_user_login_defaultApplication }}
 
   # Password complexity validation policy
   # Applications should enforce password complexity rules to discourage easy to guess passwords.

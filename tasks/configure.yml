@@ -87,6 +87,7 @@
   systemd: 
     name: graviteeio-apim-{{ item }}.service
     state: restarted
+    enabled: true
   loop:
     - gateway
     - rest-api

@@ -2,6 +2,28 @@
 # defaults file for ansible-role-gravitee
 gravitee_service_user: gravitee
 gravitee_install_dir: /opt/gravitee/apim
+gravitee_admin_user: admin
+gravitee_admin_password: adminpassword
+gravitee_organization: organization
+gravitee_environment: env
+gravitee_api_secret: api_secert
+gravitee_jwt_secret: jwt_secret
+gravitee_services_core_http_enabled: "false"
+gravitee_newsletter_enabled: false
+gravitee_apim_gateway_network_address: 127.0.0.1
+gravitee_apim_gateway_network_port: 8082
+gravitee_apim_rest_api_network_address: 127.0.0.1
+gravitee_apim_rest_api_network_port: 8083
+gravitee_apim_console_ui_network_address: 127.0.0.1
+gravitee_apim_console_ui_network_port: 8084
+gravitee_apim_portal_ui_network_address: 127.0.0.1
+gravitee_apim_portal_ui_network_port: 8085
+gravitee_apim_console_ui_baseurl: /management/organizations/DEFAULT/environments/DEFAULT
+gravitee_apim_console_ui_tittle: console_tittle
+gravitee_apim_console_ui_newsletter: "false"
+gravitee_email_enabled: false
+gravitee_email_host: localhost
+gravitee_email_port: 25
 gravitee_version: 3.19.0
 
 install_elasticsearch: true
