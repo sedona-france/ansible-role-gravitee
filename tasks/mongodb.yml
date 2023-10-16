@@ -5,7 +5,7 @@
   loop:
     - { role: community.mongodb.mongodb_linux, become: yes }
     - { role: community.mongodb.mongodb_install, become: yes }
-    - { role: community.mongodb.mongodb_mongod, become: yes }
+   # - { role: community.mongodb.mongodb_mongod, become: yes }
     - { role: community.mongodb.mongodb_auth, become: yes }
     
 - name: Create mongodb database and user
@@ -16,3 +16,4 @@
     password: "{{ mongodb_gravitee_password }}"
     roles: "{{ mongodb_gravitee_user_role }}"
     state: present
+ 

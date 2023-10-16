@@ -25,7 +25,7 @@ gravitee_email_enabled: false
 gravitee_email_host: localhost
 gravitee_email_port: 25
 gravitee_version: 3.19.0
-
+gravitee_user_login_defaultapplication: "false"
 install_elasticsearch: true
 elasticsearch_version: 7.x
 

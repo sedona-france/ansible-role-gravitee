@@ -427,7 +427,7 @@ swagger:
 user:
   login:
     # Create a default application when user connects to the portal for the very first time (default true)
-    defaultApplication: {{ gravitee_user_login_defaultApplication }}
+    defaultApplication: {{ gravitee_user_login_defaultapplication }}
 
   # Password complexity validation policy
   # Applications should enforce password complexity rules to discourage easy to guess passwords.
@@ -565,7 +565,7 @@ newsletter:
 # Specify the visibility duration of a gateway in Unknown State (in seconds)
 # Default : 604800 seconds (7 days)
 #gateway:
-#  unknown-expire-after: 604800
+#  unknown-expire-after: 86400
 
 # Cockpit
 # Specify the URL to cockpit instance. Default is the Gravitee SAAS instance

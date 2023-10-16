@@ -1,0 +1,85 @@
+- name: Backupdb
+  hosts: mongodb_host_src
+  become: true
+  tasks:
+    - name: Include vars
+      ansible.builtin.include_vars: inventory/{{ env_src }}/host_vars/apim.yml
+    - name: Create dump directory
+      ansible.builtin.file:
+        path: "{{ mongodb_path_files }}"
+        state: directory
+        mode: '0775'
+    - name: Dump all Gravitee database
+      ansible.builtin.command: >
+        mongodump --authenticationDatabase=admin -d {{ mongodb_gravitee_database }} -u {{ mongodb_gravitee_user }} -p {{ mongodb_gravitee_password }} -o {{ path_files }}/all_bkp
+    - name: Export collection configuration
+      ansible.builtin.command: >
+        mongoexport --authenticationDatabase=admin --collection={{ item }} --db={{ mongodb_gravitee_database }} -u {{ mongodb_gravitee_user }} -p {{ mongodb_gravitee_password }} --out {{ path_files }}/{{ item }}.json
+      loop: "{{ files }}"
+      changed_when: false
+    - name: Replace old env with new env
+      ansible.builtin.replace:
+        path: "{{ mongodb_path_files }}/{{ item.1 }}.json"
+        regexp: '{{ item.0.src }}'
+        replace: '{{ item.0.dest }}'
+      loop: "{{ mongodb_listofchange | product(files) | list }}"
+    - name: Archive Backupdb
+      community.general.archive:
+        path: "{{ mongodb_path_files }}/all_bkp/gravitee"
+        dest: "{{ mongodb_path_files }}/all_bkp.tgz"
+    - name: Copy Backupdb
+      ansible.builtin.fetch:
+        src: "{{ mongodb_path_files }}/all_bkp.tgz"
+        dest: "{{ mongodb_path_files }}/"
+        flat: yes
+    - name: Copy json file
+      ansible.builtin.fetch:
+        src: "{{ mongodb_path_files }}/{{ item }}.json"
+        dest: "{{ mongodb_path_files }}/{{ item }}.json"
+        flat: yes
+      loop: "{{ files }}"
+- name: Restoredb
+  hosts: mongodb_host_src
+  become: true
+  tasks:
+    - name: Include vars
+      ansible.builtin.include_vars: inventory/{{ env_dest }}/host_vars/apim.yml
+    - name: Create restore directory
+      ansible.builtin.file:
+        path: "{{ mongodb_path_files }}"
+        state: directory
+        mode: '0775'
+    - name: Copy Backupdb archive
+      ansible.builtin.copy:
+        src: "{{ mongodb_path_files }}/all_bkp.tgz"
+        dest: "{{ mongodb_path_files }}/"
+    - name: Unarchive Backupdb
+      ansible.builtin.unarchive:
+        src: "{{ mongodb_path_files }}/all_bkp.tgz"
+        dest: "{{ mongodb_path_files }}/"
+    - name: Copy json file
+      ansible.builtin.copy:
+        src: "{{ mongodb_path_files }}/{{ item }}.json"
+        dest: "{{ mongodb_path_files }}/{{ item }}.json"
+      loop: "{{ mongodb_files }}"
+    # - name: Restoredb
+    #   ansible.builtin.command: |
+    #     mongorestore -d {{ mongodb_gravitee_database }} -u {{ mongodb_gravitee_user }} -p {{ mongodb_gravitee_password }} {{ path_files }}/gravitee
+    - name: Remove collections
+      ansible.builtin.command: |
+          mongo {{ mongodb_gravitee_database }} --eval 'db.{{ item }}.remove({})'
+      loop: "{{ mongodb_files }}"
+      changed_when: false
+    - name: Import collections
+      ansible.builtin.command: |
+          mongoimport --collection={{ item }} --db={{ mongodb_gravitee_database }} -u {{ mongodb_gravitee_user }} -p {{ mongodb_gravitee_password }} {{ path_files }}/{{ item }}.json
+      loop: "{{ mongodb_files }}"
+      changed_when: false
+    - name: "Restart Gravitee services"
+      systemd: 
+        name: graviteeio-apim-{{ item }}.service
+        state: restarted
+        enabled: true
+      loop:
+        - gateway
+        - rest-api
