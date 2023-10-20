@@ -295,7 +295,7 @@ security:
           #firstname:
           #lastname:
           # Password value: admin
-          password: {{ gravitee_admin_password }}
+          password: {{ gravitee_admin_password }}
           roles: ORGANIZATION:ADMIN,ENVIRONMENT:ADMIN
           #email:
         #- user:
@@ -427,7 +427,7 @@ swagger:
 user:
   login:
     # Create a default application when user connects to the portal for the very first time (default true)
-    defaultApplication: {{ gravitee_user_login_defaultapplication }}
+    defaultApplication: {{ gravitee_user_login_defaultapplication }}
 
   # Password complexity validation policy
   # Applications should enforce password complexity rules to discourage easy to guess passwords.

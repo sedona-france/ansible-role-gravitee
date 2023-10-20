@@ -34,12 +34,3 @@
   loop:
     - gateway
     - rest-api
-
-- name: "Wait until Gravitee's ElasticSearch indices are created"
-  ansible.builtin.uri:
-    method: GET
-    url: http://localhost:9200/_cat/indices/gravitee*?format=json
-  register: es_indices_list
-  until: es_indices_list.status == 200 and es_indices_list.json|length > 0
-  retries: 10
-  delay: 3
