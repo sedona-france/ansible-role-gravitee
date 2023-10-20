@@ -237,8 +237,8 @@ analytics:
     endpoints:
       - http://${ds.elastic.host}:${ds.elastic.port}
 #    index: gravitee
-#    index_per_type: true
-#    index_mode: daily    # "daily" indexes, suffixed with date. Or "ilm" managed indexes, without date
+    index_per_type: true
+    index_mode: ilm    # "daily" indexes, suffixed with date. Or "ilm" managed indexes, without date
 #    cross_cluster:
 #      mapping:
 #        tenant_id: cluster_name
